@@ -1,6 +1,7 @@
 import os
 import sys
 import textwrap
+import time
 
 import requests
 import telegram
@@ -50,13 +51,17 @@ def main() -> None:
     chat_id = os.getenv('CHAT_ID')
     headers = {'Authorization': f'Token {dvmn_token}'}
     params = dict()
+    connection_errors_count = 0
+    waiting_time = 0
 
     while True:
         try:
+            time.sleep(waiting_time)
             response = requests.get(
                 url=url,
                 headers=headers,
-                params=params
+                params=params,
+                timeout=100
             )
             response.raise_for_status()
             user_reviews = response.json()
@@ -67,12 +72,19 @@ def main() -> None:
                     user_reviews=user_reviews
                 )
             params = dict()
+            connection_errors_count = 0
+            waiting_time = 0
             if user_reviews['status'] == 'timeout':
                 params = {'timestamp': user_reviews['timestamp_to_request']}
         except requests.exceptions.ReadTimeout as err:
             logger.error(err)
-        except ConnectionError as err:
+        except requests.exceptions.ConnectionError as err:
             logger.error(err)
+            connection_errors_count += 1
+            logger.info(f'connection errors count: {connection_errors_count}')
+            if connection_errors_count > 5:
+                waiting_time = 60
+
 
 
 if __name__ == '__main__':
