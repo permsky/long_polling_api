@@ -1,5 +1,6 @@
 import os
 import sys
+import textwrap
 
 import requests
 import telegram
@@ -19,10 +20,12 @@ def notify(
     '''
     if last_attempt['is_negative']:
         result = 'К сожалению, в работе нашлись ошибки.'
-    message_text = (
-        f'У вас проверили работу [{last_attempt["lesson_title"]}]'
-        f'({last_attempt["lesson_url"]})\n\n{result}'
-    )
+    message_text = textwrap.dedent(f'''\
+    У вас проверили работу\
+    [{last_attempt["lesson_title"]}]({last_attempt["lesson_url"]})
+
+    {result}
+    ''')
     bot = telegram.Bot(token)
     bot.send_message(
         chat_id=chat_id,
