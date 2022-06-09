@@ -55,14 +55,14 @@ def main() -> None:
                 headers=headers
             )
             response.raise_for_status()
-            response = response.json()
+            user_reviews = response.json()
             notify(
                 token=tg_token,
                 chat_id=chat_id,
-                response=response
+                response=user_reviews
             )
-            if response['status'] == 'timeout':
-                params = {'timestamp': response['timestamp_to_request']}
+            if user_reviews['status'] == 'timeout':
+                params = {'timestamp': user_reviews['timestamp_to_request']}
                 response = requests.get(
                     url=url,
                     headers=headers,
