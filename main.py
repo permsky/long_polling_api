@@ -46,12 +46,14 @@ def main() -> None:
     tg_token = os.getenv('TG_TOKEN')
     chat_id = os.getenv('CHAT_ID')
     headers = {'Authorization': f'Token {dvmn_token}'}
+    params = dict()
 
     while True:
         try:
             response = requests.get(
                 url=url,
-                headers=headers
+                headers=headers,
+                params=params
             )
             response.raise_for_status()
             user_reviews = response.json()
@@ -61,20 +63,9 @@ def main() -> None:
                     chat_id=chat_id,
                     user_reviews=user_reviews
                 )
+            params = dict()
             if user_reviews['status'] == 'timeout':
                 params = {'timestamp': user_reviews['timestamp_to_request']}
-                response = requests.get(
-                    url=url,
-                    headers=headers,
-                    params=params
-                )
-                response.raise_for_status()
-                notify(
-                    token=tg_token,
-                    chat_id=chat_id,
-                    response=response.json()
-                )
-                continue
         except requests.exceptions.ReadTimeout as err:
             logger.error(err)
         except ConnectionError as err:
