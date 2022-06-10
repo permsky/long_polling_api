@@ -71,7 +71,6 @@ def main() -> None:
                     chat_id=chat_id,
                     user_reviews=user_reviews
                 )
-            params = dict()
             connection_errors_count = 0
             waiting_time = 0
             if user_reviews['status'] == 'timeout':
@@ -84,7 +83,6 @@ def main() -> None:
             logger.info(f'connection errors count: {connection_errors_count}')
             if connection_errors_count > 5:
                 waiting_time = 60
-
 
 
 if __name__ == '__main__':
