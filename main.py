@@ -71,6 +71,7 @@ def main() -> None:
                     chat_id=chat_id,
                     user_reviews=user_reviews
                 )
+                params = {'timestamp': user_reviews['last_attempt_timestamp']}
             connection_errors_count = 0
             waiting_time = 0
             if user_reviews['status'] == 'timeout':
