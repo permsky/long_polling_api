@@ -12,7 +12,11 @@ from dotenv import load_dotenv
 from loguru import logger
 
 
-def notify(token: Optional[str], chat_id: Optional[str], user_reviews: dict) -> None:
+def notify(
+    token: Optional[str],
+    chat_id: Optional[str],
+    user_reviews: dict
+) -> None:
     """Send notification in telegram chat."""
     last_attempt = user_reviews["new_attempts"][0]
     result = """
@@ -29,15 +33,22 @@ def notify(token: Optional[str], chat_id: Optional[str], user_reviews: dict) -> 
     """
     )
     bot = telegram.Bot(str(token))
-    bot.send_message(chat_id=chat_id, text=message_text, parse_mode="Markdown")
+    bot.send_message(
+        chat_id=chat_id,
+        text=message_text,
+        parse_mode="Markdown"
+    )
 
 
 @logger.catch
 def main() -> None:
     """Dealing with long polling API devman.org."""
     logger.add(
-        sys.stderr, format="[{time:HH:mm:ss}] <lvl>{message}</lvl>", level="ERROR"
+        sys.stderr,
+        format="[{time:HH:mm:ss}] <lvl>{message}</lvl>",
+        level="ERROR"
     )
+    logger.info('Бот запущен')
 
     load_dotenv()
     url = "https://dvmn.org/api/long_polling/"
@@ -58,7 +69,11 @@ def main() -> None:
             response.raise_for_status()
             user_reviews = response.json()
             if user_reviews["status"] == "found":
-                notify(token=tg_token, chat_id=chat_id, user_reviews=user_reviews)
+                notify(
+                    token=tg_token,
+                    chat_id=chat_id,
+                    user_reviews=user_reviews
+                )
                 params = {"timestamp": user_reviews["last_attempt_timestamp"]}
             connection_errors_count = 0
             waiting_time = 0
