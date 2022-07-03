@@ -48,7 +48,6 @@ def main() -> None:
         format="[{time:HH:mm:ss}] <lvl>{message}</lvl>",
         level="ERROR"
     )
-    logger.info('Бот запущен')
 
     load_dotenv()
     url = "https://dvmn.org/api/long_polling/"
@@ -59,6 +58,13 @@ def main() -> None:
     params: dict = dict()
     connection_errors_count = 0
     waiting_time = 0
+
+    def send_log_to_bot(message):
+        bot = telegram.Bot(str(tg_token))
+        bot.send_message(chat_id, text=message.record["message"])
+    
+    logger.add(send_log_to_bot)
+    logger.info("Бот запущен")
 
     while True:
         try:
