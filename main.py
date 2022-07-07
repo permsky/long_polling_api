@@ -1,7 +1,7 @@
 import os
-import sys
 import textwrap
 import time
+import traceback
 
 from typing import Optional
 
@@ -43,11 +43,6 @@ def notify(
 @logger.catch
 def main() -> None:
     """Dealing with long polling API devman.org."""
-    logger.add(
-        sys.stderr,
-        format="[{time:HH:mm:ss}] <lvl>{message}</lvl>",
-        level="ERROR"
-    )
 
     load_dotenv()
     url = "https://dvmn.org/api/long_polling/"
@@ -58,11 +53,35 @@ def main() -> None:
     params: dict = dict()
     connection_errors_count = 0
     waiting_time = 0
+    err = None
+    errors = (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.ReadTimeout
+    )
 
     def send_log_to_bot(message):
+        record = message.record
         bot = telegram.Bot(str(tg_token))
-        bot.send_message(chat_id, text=message.record["message"])
-    
+        if err and not isinstance(err, errors):
+            error_traceback = traceback.format_exception(
+                etype=type(err),
+                value=err,
+                tb=err.__traceback__
+            )
+            text = textwrap.dedent(
+                f"""\
+                    Бот упал с ошибкой:
+{record["message"]}
+{''.join(error_traceback)}
+                """
+            )
+            bot.send_message(chat_id, text=text)
+        elif err and isinstance(err, errors):
+            pass
+        else:
+            text = record["message"]
+            bot.send_message(chat_id, text=text)
+
     logger.add(send_log_to_bot)
     logger.info("Бот запущен")
 
@@ -93,6 +112,8 @@ def main() -> None:
             logger.info(f"connection errors count: {connection_errors_count}")
             if connection_errors_count > 5:
                 waiting_time = 60
+        except Exception as err:
+            logger.error(err)
 
 
 if __name__ == "__main__":
