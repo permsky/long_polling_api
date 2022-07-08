@@ -28,7 +28,7 @@
     python main.py
     ```
 
-## Deploy на [Heroku](https://id.heroku.com/login)
+## Деплой бота на [Heroku](https://id.heroku.com/login)
 
 - Разместите код в своем репозитории на GitHub.
 - Зарегистрируйтесь на Heroku и создайте приложение во вкладке `Deploy`.
