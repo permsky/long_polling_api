@@ -50,7 +50,7 @@ def main() -> None:
     tg_token = os.getenv("TG_TOKEN")
     chat_id = os.getenv("TG_CHAT_ID")
     headers = {"Authorization": f"Token {dvmn_token}"}
-    params: dict = dict()
+    params = dict()
     connection_errors_count = 0
     waiting_time = 0
     err = None
@@ -64,12 +64,10 @@ def main() -> None:
                 value=err,
                 tb=err.__traceback__
             )
-            text = textwrap.dedent(
-                f"""\
-                    Бот упал с ошибкой:
-{record["message"]}
-{''.join(error_traceback)}
-                """
+            text = (
+                f"\nБот упал с ошибкой:"
+                f"\n{record['message']}"
+                f"\n{''.join(error_traceback)}"
             )
             bot.send_message(chat_id, text=text)
         else:
