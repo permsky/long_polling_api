@@ -54,15 +54,11 @@ def main() -> None:
     connection_errors_count = 0
     waiting_time = 0
     err = None
-    errors = (
-        requests.exceptions.ConnectionError,
-        requests.exceptions.ReadTimeout
-    )
 
     def send_log_to_bot(message):
         record = message.record
         bot = telegram.Bot(str(tg_token))
-        if err and not isinstance(err, errors):
+        if err:
             error_traceback = traceback.format_exception(
                 etype=type(err),
                 value=err,
@@ -76,8 +72,6 @@ def main() -> None:
                 """
             )
             bot.send_message(chat_id, text=text)
-        elif err and isinstance(err, errors):
-            pass
         else:
             text = record["message"]
             bot.send_message(chat_id, text=text)
