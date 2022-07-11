@@ -32,7 +32,7 @@ def notify(
     {result}
     """
     )
-    bot = telegram.Bot(str(token))
+    bot = telegram.Bot(token)
     bot.send_message(
         chat_id=chat_id,
         text=message_text,
@@ -57,7 +57,7 @@ def main() -> None:
 
     def send_log_to_bot(message):
         record = message.record
-        bot = telegram.Bot(str(tg_token))
+        bot = telegram.Bot(tg_token)
         if err:
             error_traceback = traceback.format_exception(
                 etype=type(err),
