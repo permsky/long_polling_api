@@ -56,11 +56,10 @@ def notify(
 @logger.catch
 def main() -> None:
     """Dealing with long polling API devman.org."""
-
     load_dotenv()
     url = "https://dvmn.org/api/long_polling/"
     dvmn_token = os.getenv("DEVMAN_TOKEN")
-    tg_token = os.getenv("TG_TOKEN")
+    tg_token = os.getenv("TG_BOT_TOKEN")
     chat_id = os.getenv("TG_CHAT_ID")
     headers = {"Authorization": f"Token {dvmn_token}"}
     params = dict()
