@@ -87,15 +87,15 @@ def main() -> None:
             waiting_time = 0
             if user_reviews["status"] == "timeout":
                 params = {"timestamp": user_reviews["timestamp_to_request"]}
-        except requests.exceptions.ReadTimeout as err:
+        except requests.exceptions.ReadTimeout:
             logger.exception("Бот упал с ошибкой:")
-        except requests.exceptions.ConnectionError as err:
+        except requests.exceptions.ConnectionError:
             logger.exception("Бот упал с ошибкой:")
             connection_errors_count += 1
             logger.info(f"connection errors count: {connection_errors_count}")
             if connection_errors_count > 5:
                 waiting_time = 60
-        except Exception as err:
+        except Exception:
             logger.exception("Бот упал с ошибкой:")
 
 
