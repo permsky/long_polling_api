@@ -1,15 +1,30 @@
+import logging
 import os
 import textwrap
 import time
-import traceback
-
 from typing import Optional
 
 import requests
 import telegram
-
 from dotenv import load_dotenv
 from loguru import logger
+
+
+class TelegramLogsHandler(logging.Handler):
+    """Custom handler for sending logs in Telegram bot."""
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        formatter = logging.Formatter("%(message)s")
+        message = formatter.format(record)
+        message_chunks = message.split("|")[2:]
+        chunk_0 = message_chunks[0].split("-")[1:]
+        message_chunks[0] = "-".join(chunk_0)
+        text = "|".join(message_chunks)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=text)
 
 
 def notify(
@@ -24,11 +39,9 @@ def notify(
     """
     if last_attempt["is_negative"]:
         result = "К сожалению, в работе нашлись ошибки."
-    message_text = textwrap.dedent(
-        f"""\
+    message_text = textwrap.dedent(f"""\
     У вас проверили работу\
     [{last_attempt["lesson_title"]}]({last_attempt["lesson_url"]})
-
     {result}
     """
     )
@@ -53,28 +66,8 @@ def main() -> None:
     params = dict()
     connection_errors_count = 0
     waiting_time = 0
-    err = None
-
-    def send_log_to_bot(message):
-        record = message.record
-        bot = telegram.Bot(tg_token)
-        if err:
-            error_traceback = traceback.format_exception(
-                etype=type(err),
-                value=err,
-                tb=err.__traceback__
-            )
-            text = (
-                f"\nБот упал с ошибкой:"
-                f"\n{record['message']}"
-                f"\n{''.join(error_traceback)}"
-            )
-            bot.send_message(chat_id, text=text)
-        else:
-            text = record["message"]
-            bot.send_message(chat_id, text=text)
-
-    logger.add(send_log_to_bot)
+    tg_bot = telegram.Bot(tg_token)
+    logger.add(TelegramLogsHandler(tg_bot, chat_id))
     logger.info("Бот запущен")
 
     while True:
@@ -97,15 +90,15 @@ def main() -> None:
             if user_reviews["status"] == "timeout":
                 params = {"timestamp": user_reviews["timestamp_to_request"]}
         except requests.exceptions.ReadTimeout as err:
-            logger.error(err)
+            logger.exception("Бот упал с ошибкой:")
         except requests.exceptions.ConnectionError as err:
-            logger.error(err)
+            logger.exception("Бот упал с ошибкой:")
             connection_errors_count += 1
             logger.info(f"connection errors count: {connection_errors_count}")
             if connection_errors_count > 5:
                 waiting_time = 60
         except Exception as err:
-            logger.error(err)
+            logger.exception("Бот упал с ошибкой:")
 
 
 if __name__ == "__main__":
