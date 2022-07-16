@@ -43,8 +43,7 @@ def notify(
     У вас проверили работу\
     [{last_attempt["lesson_title"]}]({last_attempt["lesson_url"]})
     {result}
-    """
-    )
+    """)
     bot = telegram.Bot(token)
     bot.send_message(
         chat_id=chat_id,
