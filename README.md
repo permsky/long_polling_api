@@ -18,9 +18,9 @@
   - Чтобы получить свой `chat_id`, напишите в Telegram специальному боту: `@userinfobot`
   - В директории со скриптом создайте файл `.env`, в котором будут храниться чувствительные данные:
     ```
-    TG_TOKEN='токен telegram-бота'
+    TG_BOT_TOKEN='токен telegram-бота'
     DEVMAN_TOKEN='токен API devman'
-    CHAT_ID='ваш чат-id'
+    TG_CHAT_ID='ваш чат-id'
     ```
   - запустите скрипт командой:
 
@@ -28,12 +28,25 @@
     python main.py
     ```
 
+## Запуск локально с помощью Docker.
+- Установите [Docker](https://docs.docker.com/get-docker/)
+- В консоли выполните следующие команды:
+  ```
+  docker build -t <image_name> .
+  docker run -d --env-file ./.env <image_name>
+  ```
+
 ## Деплой бота на [Heroku](https://id.heroku.com/login)
 
 - Разместите код в своем репозитории на GitHub.
 - Зарегистрируйтесь на Heroku и создайте приложение во вкладке `Deploy`.
 - Сохраните чувствительные данные во вкладке `Settings` в `Config Vars`.
-- Выберите ветку `main` нажмите `Deploy Branch` во вкладке `Deploy`.
+- В консоли выполните следующие команды:
+  ```
+  heroku stack:set container -a <app_name>
+  heroku git:remote -a <app_name>
+  git push heroku main
+  ```
 - Активируйте процесс на вкладке `Resources`.
 Для просмотра в консоли возможных ошибок при деплое бота используйте [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install).
 
